@@ -1,0 +1,21 @@
+control:
+  http:
+    address: :8080
+  debug: true
+  testName: Vasya
+
+metrics:
+  address: :9090
+
+pprof:
+  address: :9080
+
+grpc:
+  address: :9000
+  debug: true
+
+logger:
+  format: json
+  level: debug
+  full_caller: false
+  trace_level: error
