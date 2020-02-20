@@ -5,7 +5,6 @@ import (
 	"github.com/jenchik/helium-web/pkg/web"
 
 	"github.com/im-kulikov/helium/module"
-	// "github.com/im-kulikov/helium/web"
 	"github.com/spf13/viper"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
@@ -28,6 +27,8 @@ type Config struct {
 	dig.Out
 
 	Control control.Config
+	Metrics web.MetricConfig
+	// Pprof   web.PprofConfig // for skip
 }
 
 func configInit(v *viper.Viper, log *zap.SugaredLogger, validate *validator.Validate) (Config, error) {

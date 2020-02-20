@@ -16,11 +16,10 @@ type (
 	ServerResult = web.ServerResult
 
 	Config struct {
-		Address  string
-		Disabled bool
-
-		MaxHeaderBytes int
+		Address        string
 		Network        string
+		MaxHeaderBytes int
+		Disabled       bool
 		SkipErrors     bool
 
 		ShutdownTimeout   time.Duration
@@ -30,12 +29,15 @@ type (
 		IdleTimeout       time.Duration
 	}
 
+	MetricConfig Config
+	PprofConfig  Config
+
 	// APIParams struct
 	APIParams struct {
 		dig.In
 
-		Config  Config       `optional:"true"`
-		Logger  *zap.Logger  `optional:"true"`
+		Config  Config `optional:"true"`
+		Logger  *zap.Logger
 		Handler http.Handler `optional:"true"`
 	}
 
@@ -43,23 +45,23 @@ type (
 	MultiServerParams struct {
 		dig.In
 
-		Logger  *zap.Logger   `optional:"true"`
+		Logger  *zap.Logger
 		Servers []web.Service `group:"services"`
 	}
 
 	profileParams struct {
 		dig.In
 
-		Logger  *zap.Logger  `optional:"true"`
-		Config  Config       `optional:"true"`
+		Logger  *zap.Logger
+		Config  PprofConfig  `optional:"true"`
 		Handler http.Handler `name:"profile_handler" optional:"true"`
 	}
 
 	metricParams struct {
 		dig.In
 
-		Logger  *zap.Logger  `optional:"true"`
-		Config  Config       `optional:"true"`
+		Logger  *zap.Logger
+		Config  MetricConfig `optional:"true"`
 		Handler http.Handler `name:"metric_handler" optional:"true"`
 	}
 )
@@ -76,16 +78,10 @@ var (
 
 // NewMultiServer returns new multi servers group
 func NewMultiServer(p MultiServerParams) (web.Service, error) {
-	if p.Logger == nil {
-		p.Logger = zap.NewNop()
-	}
 	return web.New(p.Logger, p.Servers...)
 }
 
 func newProfileServer(p profileParams) (ServerResult, error) {
-	if p.Logger == nil {
-		p.Logger = zap.NewNop()
-	}
 	p.Logger = p.Logger.With(zap.String("web", "pprof"))
 	mux := http.NewServeMux()
 	mux.HandleFunc("/debug/pprof/", pprof.Index)
@@ -96,27 +92,21 @@ func newProfileServer(p profileParams) (ServerResult, error) {
 	if p.Handler != nil {
 		mux.Handle("/", p.Handler)
 	}
-	return NewHTTPServer(p.Config, mux, p.Logger)
+	return NewHTTPServer(Config(p.Config), mux, p.Logger)
 }
 
 func newMetricServer(p metricParams) (ServerResult, error) {
-	if p.Logger == nil {
-		p.Logger = zap.NewNop()
-	}
 	p.Logger = p.Logger.With(zap.String("web", "metrics"))
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 	if p.Handler != nil {
 		mux.Handle("/", p.Handler)
 	}
-	return NewHTTPServer(p.Config, mux, p.Logger)
+	return NewHTTPServer(Config(p.Config), mux, p.Logger)
 }
 
 // NewAPIServer creates api server by http.Handler from DI container
 func NewAPIServer(p APIParams) (ServerResult, error) {
-	if p.Logger == nil {
-		p.Logger = zap.NewNop()
-	}
 	p.Logger = p.Logger.With(zap.String("web", "api"))
 	return NewHTTPServer(p.Config, p.Handler, p.Logger)
 }
@@ -128,14 +118,14 @@ func NewHTTPServer(conf Config, h http.Handler, l *zap.Logger) (web.ServerResult
 	switch {
 	case l == nil:
 		return result, web.ErrEmptyLogger
+	case len(conf.Address) == 0:
+		l.Info("Empty bind address, skip")
+		return result, nil
 	case h == nil:
 		l.Info("Empty handler, skip")
 		return result, nil
 	case conf.Disabled:
 		l.Info("Server disabled")
-		return result, nil
-	case len(conf.Address) == 0:
-		l.Info("Empty bind address, skip")
 		return result, nil
 	}
 

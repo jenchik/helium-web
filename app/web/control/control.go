@@ -31,7 +31,7 @@ func New(opt Options) (http.Handler, error) {
 	mux := http.NewServeMux()
 	mux.Handle("/check", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello " + opt.Config.TestName))
+		_, _ = w.Write([]byte("Hello " + opt.Config.TestName))
 	}))
 
 	return mux, nil
