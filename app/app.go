@@ -6,6 +6,7 @@ import (
 
 	"github.com/im-kulikov/helium"
 	"github.com/im-kulikov/helium/web"
+	"github.com/jenchik/workers"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 )
@@ -15,8 +16,9 @@ type (
 	Params struct {
 		dig.In
 
-		Logger *zap.SugaredLogger
-		Server web.Service
+		Logger  *zap.SugaredLogger
+		Server  web.Service
+		Workers *workers.Group
 	}
 
 	serveApp struct {
@@ -32,6 +34,9 @@ func newAppServe(params Params) helium.App {
 
 // Run application
 func (s serveApp) Run(ctx context.Context) error {
+	s.Logger.Info("Running workers...")
+	s.Workers.Run()
+
 	s.Logger.Infow("Run servers")
 	if err := s.Server.Start(); err != nil {
 		return err
@@ -45,7 +50,13 @@ func (s serveApp) Run(ctx context.Context) error {
 		return err
 	}
 
+	s.Logger.Info("Stopping workers...")
+	s.Workers.Stop()
+
+	s.Logger.Info("Waiting workers...")
+	err := s.Workers.Wait(context.TODO())
+
 	s.Logger.Info("Application stopped")
 
-	return nil
+	return err
 }

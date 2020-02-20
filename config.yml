@@ -19,3 +19,11 @@ logger:
   level: debug
   full_caller: false
   trace_level: error
+
+scanner:
+  testName: Foobar
+
+workers:
+  test_scanner:
+    timer: 20s
+    immediately: true

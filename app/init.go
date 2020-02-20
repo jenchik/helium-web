@@ -1,8 +1,10 @@
 package app
 
 import (
+	"github.com/jenchik/helium-web/app/scanner"
 	"github.com/jenchik/helium-web/app/web/control"
 	"github.com/jenchik/helium-web/pkg/web"
+	"github.com/jenchik/helium-web/pkg/workers"
 
 	"github.com/im-kulikov/helium/module"
 	"github.com/spf13/viper"
@@ -17,9 +19,12 @@ var (
 		Append(
 			module.New(validator.New),
 			module.New(configInit),
+			module.New(jobs),
+			workers.Module,
 			web.ServersModule,
 
 			control.Module,
+			scanner.Module,
 		)
 )
 
@@ -29,6 +34,9 @@ type Config struct {
 	Control control.Config
 	Metrics web.MetricConfig
 	// Pprof   web.PprofConfig // for skip
+
+	Scanner scanner.Config
+	Workers workers.ConfigWorkers
 }
 
 func configInit(v *viper.Viper, log *zap.SugaredLogger, validate *validator.Validate) (Config, error) {
