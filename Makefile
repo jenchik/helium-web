@@ -30,7 +30,7 @@ test:
 coverage: test
 	go tool cover -html=${APP_NAME}.coverprofile
 
-.PHONY: build run
+.PHONY: build run petya
 
 build: GIT_TAG?=$(shell git symbolic-ref -q --short HEAD || git describe --tags --exact-match 2>/dev/null || git describe --all)
 build: BUILD_TIME=$(shell date +%FT%T%z)
@@ -41,3 +41,7 @@ build:
 run: build
 run:
 	./$(shell basename `pwd`)
+
+petya: build
+petya:
+	HELIUM_WEB_CONTROL_TESTNAME=Petya ./$(shell basename `pwd`)
