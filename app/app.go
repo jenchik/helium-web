@@ -4,9 +4,10 @@ import (
 	"context"
 	_ "net/http/pprof" // nolint:gosec // Enable profiling
 
+	"github.com/jenchik/helium-web/pkg/workers"
+
 	"github.com/im-kulikov/helium"
 	"github.com/im-kulikov/helium/web"
-	"github.com/jenchik/workers"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 )
@@ -18,7 +19,7 @@ type (
 
 		Logger  *zap.SugaredLogger
 		Server  web.Service
-		Workers *workers.Group
+		Workers workers.Group
 	}
 
 	serveApp struct {

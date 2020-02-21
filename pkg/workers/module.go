@@ -7,5 +7,4 @@ import (
 // Module of workers
 var Module = module.Module{
 	{Constructor: NewWorkersGroup},
-	{Constructor: NewWorkers},
 }

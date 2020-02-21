@@ -5,6 +5,7 @@ import (
 	"github.com/jenchik/helium-web/app/web/control"
 	"github.com/jenchik/helium-web/pkg/web"
 	"github.com/jenchik/helium-web/pkg/workers"
+	"github.com/jenchik/helium-web/pkg/wrks"
 
 	"github.com/im-kulikov/helium/module"
 	"github.com/spf13/viper"
@@ -20,6 +21,7 @@ var (
 			module.New(validator.New),
 			module.New(configInit),
 			module.New(jobs),
+			module.New(wrks.New),
 			workers.Module,
 			web.ServersModule,
 

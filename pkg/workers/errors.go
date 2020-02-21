@@ -13,9 +13,6 @@ func (e errBase) Error() string {
 var (
 	ErrWrongConfig = errBase("configure error")
 
-	// ErrMissingKey when config key for worker is missing
-	ErrMissingKey = fmt.Errorf("%w; missing worker key", ErrWrongConfig)
-
 	// ErrEmptyConfig when viper not passed to params
 	ErrEmptyConfig = fmt.Errorf("%w; empty config", ErrWrongConfig)
 
@@ -28,4 +25,7 @@ var (
 
 	// ErrEmptyJob when worker job is nil
 	ErrEmptyJob = fmt.Errorf("%w; empty job", ErrWrongConfig)
+
+	// ErrCreateWorker when cannot create worker
+	ErrCreateWorker = errBase("cannot create worker")
 )
