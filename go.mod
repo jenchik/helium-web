@@ -3,6 +3,7 @@ module github.com/jenchik/helium-web
 go 1.13
 
 require (
+	github.com/chapsuk/worker v1.0.0
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/im-kulikov/helium v0.13.6
 	github.com/jenchik/workers v0.0.0-20190422072245-8e4b344044d2

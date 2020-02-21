@@ -1,10 +1,10 @@
-package wrks
+package chapsuk
 
 import (
 	"context"
 
+	prov "github.com/chapsuk/worker"
 	"github.com/jenchik/helium-web/pkg/workers"
-	prov "github.com/jenchik/workers"
 )
 
 type (
@@ -22,17 +22,32 @@ func (a *adapter) Run() {
 }
 
 func (a *adapter) Stop() {
-	a.wg.Stop()
+	go a.wg.Stop()
 }
 
 func (a *adapter) Wait(ctx context.Context) error {
-	return a.wg.Wait(ctx)
+	stop := make(chan struct{})
+	go func() {
+		defer close(stop)
+		a.wg.Stop()
+	}()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-stop:
+	}
+	return nil
 }
 
 func (adapter) Group(ctx context.Context) workers.Group {
-	return &adapter{
-		wg: prov.NewGroup(ctx),
+	a := &adapter{
+		wg: prov.NewGroup(),
 	}
+	go func() {
+		<-ctx.Done()
+		a.wg.Stop()
+	}()
+	return a
 }
 
 func jobFunc(f workers.Job) func(context.Context) {
@@ -77,5 +92,6 @@ func (a *adapter) Add(opt workers.Option) error {
 		}
 	*/
 
-	return a.wg.Add(w)
+	a.wg.Add(w)
+	return nil
 }

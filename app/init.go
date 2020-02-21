@@ -5,7 +5,9 @@ import (
 	"github.com/jenchik/helium-web/app/web/control"
 	"github.com/jenchik/helium-web/pkg/web"
 	"github.com/jenchik/helium-web/pkg/workers"
-	"github.com/jenchik/helium-web/pkg/wrks"
+
+	// wrks "github.com/jenchik/helium-web/pkg/providers/chapsuk"
+	wrks "github.com/jenchik/helium-web/pkg/providers/jenchik"
 
 	"github.com/im-kulikov/helium/module"
 	"github.com/spf13/viper"
